@@ -11,6 +11,8 @@
         <thead>
           <tr>
             <th>标题</th>
+            <th>分类</th>
+            <th>标签</th>
             <th>创建时间</th>
             <th>操作</th>
           </tr>
@@ -18,6 +20,16 @@
         <tbody>
           <tr v-for="post in posts" :key="post.id">
             <td>{{ post.title }}</td>
+            <td>
+              <span v-if="post.category" class="category-badge">{{ post.category }}</span>
+              <span v-else class="no-data">-</span>
+            </td>
+            <td>
+              <div class="tags-cell">
+                <span v-for="tag in parseTags(post.tags)" :key="tag" class="tag-badge">{{ tag }}</span>
+                <span v-if="!post.tags" class="no-data">-</span>
+              </div>
+            </td>
             <td>{{ formatDate(post.created_at) }}</td>
             <td class="actions">
               <router-link :to="`/admin/edit/${post.id}`" class="btn btn-sm">编辑</router-link>
@@ -52,12 +64,17 @@ const formatDate = (dateString) => {
   })
 }
 
+const parseTags = (tagsStr) => {
+  if (!tagsStr) return []
+  return tagsStr.split(',').map(t => t.trim()).filter(t => t)
+}
+
 const loadPosts = async () => {
   try {
     loading.value = true
     error.value = null
-    const response = await postApi.getPosts({ limit: 100 })
-    posts.value = response.data
+    const response = await postApi.getPosts({ page: 1, page_size: 100 })
+    posts.value = response.data.posts || response.data
   } catch (err) {
     error.value = '加载文章列表失败'
     console.error(err)
@@ -162,6 +179,32 @@ tr:hover {
   gap: 0.5rem;
 }
 
+.category-badge {
+  background-color: #3498db;
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+.tags-cell {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.tag-badge {
+  background-color: #e8f4f8;
+  color: #2980b9;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+.no-data {
+  color: #999;
+}
+
 .loading, .error, .no-posts {
   text-align: center;
   padding: 3rem;
@@ -170,5 +213,11 @@ tr:hover {
 
 .error {
   color: #e74c3c;
+}
+
+.no-posts {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 </style>
