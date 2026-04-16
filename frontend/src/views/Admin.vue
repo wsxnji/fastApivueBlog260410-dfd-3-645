@@ -11,6 +11,8 @@
         <thead>
           <tr>
             <th>标题</th>
+            <th>分类</th>
+            <th>标签</th>
             <th>创建时间</th>
             <th>操作</th>
           </tr>
@@ -18,6 +20,15 @@
         <tbody>
           <tr v-for="post in posts" :key="post.id">
             <td>{{ post.title }}</td>
+            <td>
+              <span class="category-badge">{{ post.category || '其它' }}</span>
+            </td>
+            <td>
+              <div v-if="post.tags" class="tags-cell">
+                <span v-for="tag in formatTags(post.tags)" :key="tag" class="tag-badge">{{ tag }}</span>
+              </div>
+              <span v-else class="no-tags">-</span>
+            </td>
             <td>{{ formatDate(post.created_at) }}</td>
             <td class="actions">
               <router-link :to="`/admin/edit/${post.id}`" class="btn btn-sm">编辑</router-link>
@@ -52,12 +63,17 @@ const formatDate = (dateString) => {
   })
 }
 
+const formatTags = (tagsString) => {
+  if (!tagsString) return []
+  return tagsString.split(',').map(tag => tag.trim()).filter(tag => tag)
+}
+
 const loadPosts = async () => {
   try {
     loading.value = true
     error.value = null
-    const response = await postApi.getPosts({ limit: 100 })
-    posts.value = response.data
+    const response = await postApi.getPosts({ page: 1, page_size: 100 })
+    posts.value = response.data.posts
   } catch (err) {
     error.value = '加载文章列表失败'
     console.error(err)
@@ -68,7 +84,7 @@ const loadPosts = async () => {
 
 const handleDelete = async (id) => {
   if (!confirm('确定要删除这篇文章吗？')) return
-  
+
   try {
     await postApi.deletePost(id)
     await loadPosts()
@@ -155,6 +171,32 @@ th {
 
 tr:hover {
   background-color: #f8f9fa;
+}
+
+.category-badge {
+  background: #3498db;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.tags-cell {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.tag-badge {
+  background: #ecf0f1;
+  color: #7f8c8d;
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.8rem;
+}
+
+.no-tags {
+  color: #999;
 }
 
 .actions {

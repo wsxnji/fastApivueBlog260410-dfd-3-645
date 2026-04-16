@@ -8,7 +8,7 @@ const api = axios.create({
 })
 
 export const postApi = {
-  // 获取所有文章
+  // 获取所有文章（带分页）
   getPosts(params) {
     return api.get('/posts', { params })
   },
@@ -31,5 +31,15 @@ export const postApi = {
   // 删除文章
   deletePost(id) {
     return api.delete(`/posts/${id}`)
+  },
+  
+  // 获取分类列表
+  getCategories() {
+    return api.get('/categories')
+  },
+  
+  // 获取标签列表
+  getTags() {
+    return api.get('/tags')
   }
 }
