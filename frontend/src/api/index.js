@@ -8,27 +8,30 @@ const api = axios.create({
 })
 
 export const postApi = {
-  // 获取所有文章
   getPosts(params) {
     return api.get('/posts', { params })
   },
   
-  // 获取单篇文章
+  getPaginatedPosts(page = 1, pageSize = 3) {
+    return api.get('/posts/paginated', { params: { page, page_size: pageSize } })
+  },
+  
+  searchPosts(keyword, page = 1) {
+    return api.get('/posts/search', { params: { keyword, page } })
+  },
+  
   getPost(id) {
     return api.get(`/posts/${id}`)
   },
   
-  // 创建文章
   createPost(data) {
     return api.post('/posts', data)
   },
   
-  // 更新文章
   updatePost(id, data) {
     return api.put(`/posts/${id}`, data)
   },
   
-  // 删除文章
   deletePost(id) {
     return api.delete(`/posts/${id}`)
   }

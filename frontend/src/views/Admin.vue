@@ -11,13 +11,21 @@
         <thead>
           <tr>
             <th>标题</th>
+            <th>分类</th>
+            <th>标签</th>
             <th>创建时间</th>
             <th>操作</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="post in posts" :key="post.id">
-            <td>{{ post.title }}</td>
+            <td class="title-cell">{{ post.title }}</td>
+            <td>
+              <span class="category-badge">{{ post.category || '未分类' }}</span>
+            </td>
+            <td class="tags-cell">
+              <span v-for="tag in getTags(post.tags)" :key="tag" class="tag-badge">{{ tag }}</span>
+            </td>
             <td>{{ formatDate(post.created_at) }}</td>
             <td class="actions">
               <router-link :to="`/admin/edit/${post.id}`" class="btn btn-sm">编辑</router-link>
@@ -50,6 +58,11 @@ const formatDate = (dateString) => {
     month: 'long',
     day: 'numeric'
   })
+}
+
+const getTags = (tags) => {
+  if (!tags) return []
+  return tags.split(',').filter(t => t.trim())
 }
 
 const loadPosts = async () => {
@@ -155,6 +168,36 @@ th {
 
 tr:hover {
   background-color: #f8f9fa;
+}
+
+.title-cell {
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tags-cell {
+  max-width: 200px;
+}
+
+.category-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  background: #3498db;
+  color: #fff;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+.tag-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  background: #f0f4f8;
+  color: #3498db;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  margin: 0.1rem;
 }
 
 .actions {
