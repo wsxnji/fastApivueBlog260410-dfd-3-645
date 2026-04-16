@@ -11,7 +11,9 @@
   "dependencies": {
     "vue": "^3.3.8",
     "vue-router": "^4.2.5",
-    "axios": "^1.6.2"
+    "axios": "^1.6.2",
+    "@wangeditor/editor": "^5.1.23",
+    "@wangeditor/editor-for-vue": "^5.1.12"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.5.0",

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
-from crud import get_post, get_posts, create_post, update_post, delete_post
-from schemas import Post, PostCreate, PostUpdate
+from crud import get_post, get_posts, create_post, update_post, delete_post, get_paginated_posts, search_posts
+from schemas import Post, PostCreate, PostUpdate, PaginatedPosts
 
 router = APIRouter()
 
@@ -11,6 +11,30 @@ router = APIRouter()
 def read_posts(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     posts = get_posts(db, skip=skip, limit=limit)
     return posts
+
+
+@router.get("/posts/paginated", response_model=PaginatedPosts)
+def read_paginated_posts(page: int = 1, page_size: int = 3, db: Session = Depends(get_db)):
+    posts, total, total_pages = get_paginated_posts(db, page=page, page_size=page_size)
+    return {
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "total_pages": total_pages,
+        "posts": posts
+    }
+
+
+@router.get("/posts/search", response_model=PaginatedPosts)
+def search_posts_endpoint(keyword: str, page: int = 1, page_size: int = 10, db: Session = Depends(get_db)):
+    posts, total, total_pages = search_posts(db, keyword=keyword, page=page, page_size=page_size)
+    return {
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "total_pages": total_pages,
+        "posts": posts
+    }
 
 
 @router.get("/posts/{post_id}", response_model=Post)
