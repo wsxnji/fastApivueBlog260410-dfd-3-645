@@ -1,16 +1,32 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from database import get_db
-from crud import get_post, get_posts, create_post, update_post, delete_post
+from crud import get_post, get_posts, get_posts_count, create_post, update_post, delete_post
 from schemas import Post, PostCreate, PostUpdate
+from typing import Optional
 
 router = APIRouter()
 
 
-@router.get("/posts", response_model=list[Post])
-def read_posts(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    posts = get_posts(db, skip=skip, limit=limit)
-    return posts
+@router.get("/posts")
+def read_posts(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(3, ge=1, le=100),
+    search: Optional[str] = None,
+    category: Optional[str] = None,
+    tag: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    skip = (page - 1) * page_size
+    posts = get_posts(db, skip=skip, limit=page_size, search=search, category=category, tag=tag)
+    total = get_posts_count(db, search=search, category=category, tag=tag)
+    return {
+        "posts": posts,
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "total_pages": (total + page_size - 1) // page_size
+    }
 
 
 @router.get("/posts/{post_id}", response_model=Post)

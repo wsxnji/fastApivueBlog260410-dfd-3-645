@@ -3,7 +3,7 @@ import requests
 import json
 
 # 博客API地址
-BASE_URL = "http://127.0.0.1:8000/api"
+BASE_URL = "http://127.0.0.1:8001/api"
 
 # 6篇IT技术文章内容
 articles = [

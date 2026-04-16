@@ -10,5 +10,7 @@ class Post(Base):
     title = Column(String(200), nullable=False)
     content = Column(Text, nullable=False)
     summary = Column(String(500))
+    category = Column(String(50), default='其它')
+    tags = Column(String(200), default='')
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

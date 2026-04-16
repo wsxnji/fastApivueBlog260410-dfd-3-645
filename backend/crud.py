@@ -8,8 +8,34 @@ def get_post(db: Session, post_id: int) -> Optional[Post]:
     return db.query(Post).filter(Post.id == post_id).first()
 
 
-def get_posts(db: Session, skip: int = 0, limit: int = 10) -> List[Post]:
-    return db.query(Post).order_by(Post.created_at.desc()).offset(skip).limit(limit).all()
+def get_posts(db: Session, skip: int = 0, limit: int = 10, search: str = None, category: str = None, tag: str = None) -> List[Post]:
+    query = db.query(Post)
+    if search:
+        query = query.filter(
+            (Post.title.contains(search)) | 
+            (Post.content.contains(search)) |
+            (Post.tags.contains(search))
+        )
+    if category:
+        query = query.filter(Post.category == category)
+    if tag:
+        query = query.filter(Post.tags.contains(tag))
+    return query.order_by(Post.created_at.desc()).offset(skip).limit(limit).all()
+
+
+def get_posts_count(db: Session, search: str = None, category: str = None, tag: str = None) -> int:
+    query = db.query(Post)
+    if search:
+        query = query.filter(
+            (Post.title.contains(search)) | 
+            (Post.content.contains(search)) |
+            (Post.tags.contains(search))
+        )
+    if category:
+        query = query.filter(Post.category == category)
+    if tag:
+        query = query.filter(Post.tags.contains(tag))
+    return query.count()
 
 
 def create_post(db: Session, post: PostCreate) -> Post:
